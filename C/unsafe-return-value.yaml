@@ -1,0 +1,41 @@
+rules:
+# INFO
+ - id: Unsafe-return-value INFO check 1
+   metadata:
+    author: FXC
+   severity: INFO
+   languages:
+    - c
+    - cpp
+   message: >-
+    INFO: The value of snprintf(vnsprintf) is dangerous, which may lead to malicious exploitation, such as information leakage.
+   pattern-either:
+    - patterns:
+       - pattern: |
+          $LENGTH = $FUN($BUF, $SIZE, $FMT, ...);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: snprintf
+           - pattern: vsnprintf
+       - pattern-regex: "%s"
+
+ - id: Unsafe-return-value INFO check 2
+   metadata:
+    author: FXC
+   severity: INFO
+   languages:
+    - c
+    - cpp
+   message: >-
+    INFO: The value of strlcpy(strlcat) is dangerous, which may lead to malicious exploitation, such as information leakage.
+   pattern-either:
+    - patterns:
+       - pattern: |
+          $LENGTH = $FUN($BUF, $BUF1, $SIZE);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: strlcpy
+           - pattern: strlcat
+

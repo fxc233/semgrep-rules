@@ -1,0 +1,198 @@
+rules:
+# INFO
+ - id: Stack-overflow INFO check 1
+   metadata:
+    author: FXC
+   severity: INFO
+   languages:
+    - c
+    - cpp
+   message: >-
+    INFO: This function can easily cause a stack overflow, if the length is not well checked.
+   pattern-either:
+    - patterns:
+       - pattern: $FUN($BUF, ...)
+       - pattern-inside: |
+          $TYPE $BUF[$SIZE];
+          ...
+          $FUN($BUF, ...);
+       - pattern-not: $FUN($BUF, "...", ...)
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: memcpy
+           - pattern: strncpy
+           - pattern: strncat
+
+ - id: Stack-overflow INFO check 2
+   metadata:
+    author: FXC
+   severity: INFO
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: This function can easily cause a stack overflow, if the format string is not well checked.(snprintf)
+   pattern-either:
+    - patterns:
+       - pattern: $FUN($BUF, $SIZE, "...", ..., $BUF1, ...)
+       - pattern-either:
+         - pattern-inside: |
+            $TYPE $BUF[$SIZE];
+            ...
+            $TYPE1 $BUF1[$SIZE1];
+            ...
+            $FUN($BUF, $SIZE, "...", ..., $BUF1, ...);
+         - pattern-inside: |
+            $TYPE1 $BUF1[$SIZE1];
+            ...
+            $TYPE $BUF[$SIZE];
+            ...
+            $FUN($BUF, $SIZE, "...", ..., $BUF1, ...);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: snprintf
+           - pattern: vsnprintf
+       - pattern-either:
+         - pattern-regex: "%s"
+
+ - id: Stack-overflow INFO check 3
+   metadata:
+    author: FXC
+   severity: INFO
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: This function can easily cause a stack overflow, if size in the format string is not well checked.
+   pattern-either:
+    - patterns:
+       - pattern: $FUN($BUF, "...", ..., $BUF1, ...)
+       - pattern-either:
+         - pattern-inside: |
+            $TYPE $BUF[$SIZE];
+            ...
+            $TYPE1 $BUF1[$SIZE1];
+            ...
+            $FUN($BUF, "...", ..., $BUF1, ...);
+         - pattern-inside: |
+            $TYPE1 $BUF1[$SIZE1];
+            ...
+            $TYPE $BUF[$SIZE];
+            ...
+            $FUN($BUF, "...", ..., $BUF1, ...);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: sscanf
+       - pattern-either:
+         - pattern-regex: "a-z"
+         - pattern-regex: "A-Z"
+         - pattern-regex: "0-9"
+
+# WARNING
+ - id: Stack-overflow WARNING check 1
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: This function can easily cause a stack overflow if the parameters are not well checked.
+   pattern-either:
+    - patterns:
+       - pattern: $FUN($BUF, ...)
+       - pattern-inside: |
+          $TYPE $BUF[$SIZE];
+          ...
+          $FUN($BUF, ...);
+       - pattern-not: $FUN($BUF, "...", ...)
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: gets
+           - pattern: strcpy
+           - pattern: strcat
+
+ - id: Stack-overflow WARNING check 2
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: This function can easily cause a stack overflow, if the format string is not well checked.(sprintf, vsprintf)
+   pattern-either:
+    - patterns:
+       - pattern: $FUN($BUF, "...", ...)
+       - pattern-inside: |
+          $TYPE $BUF[$SIZE];
+          ...
+          $FUN($BUF, "...", ...);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: sprintf
+           - pattern: vsprintf
+       - pattern-either:
+         - pattern-regex: "%s"
+
+ - id: Stack-overflow WARNING check 3
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: This function can easily cause a stack overflow, if the format string is not well checked.(scanf, vscanf)
+   pattern-either:
+    - patterns:
+       - pattern: $FUN("...", $BUF, ...)
+       - pattern-inside: |
+          $TYPE $BUF[$SIZE];
+          ...
+          $FUN("...", $BUF, ...);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: scanf
+           - pattern: vscanf
+       - pattern-either:
+         - pattern-regex: "%s"
+
+ - id: Stack-overflow WARNING check 4
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: This function can easily cause a stack overflow, if the format string is not well checked.(sscanf)
+   pattern-either:
+    - patterns:
+       - pattern: $FUN($BUF, "...", ..., $BUF1, ...)
+       - pattern-either:
+         - pattern-inside: |
+            $TYPE $BUF[$SIZE];
+            ...
+            $TYPE1 $BUF1[$SIZE1];
+            ...
+            $FUN($BUF, "...", ..., $BUF1, ...);
+         - pattern-inside: |
+            $TYPE1 $BUF1[$SIZE1];
+            ...
+            $TYPE $BUF[$SIZE];
+            ...
+            $FUN($BUF, "...", ..., $BUF1, ...);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: sscanf
+       - pattern-either:
+         - pattern-regex: "%s"
+

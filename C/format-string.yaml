@@ -1,0 +1,109 @@
+rules:
+# WARNING
+ - id: Format-string WARNING check 1
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: This function can easily cause a stack overflow if the parameters are not well checked.
+   pattern-either:
+   - patterns:
+     - pattern-either:
+       - pattern: |
+          $TYPE * $BUF;
+          ...
+          $FUN($BUF, ...);
+       - pattern: |
+          $TYPE $BUF[$SIZE];
+          ...
+          $FUN($BUF, ...);
+     - pattern-not: $FUN("...", ...)
+     - pattern-not: |
+        $TYPE * $BUF = "...";
+        ...
+        $FUN($BUF, ...);
+     - pattern-not: |
+        $TYPE * $BUF;
+        ...
+        $BUF = "...";
+        ...
+        $FUN($BUF, ...);
+     - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: printf
+           - pattern: vprintf
+           - pattern: wprintf
+           - pattern: vwprintf
+           - pattern: scanf
+           - pattern: wscanf
+           - pattern: vscanf
+           - pattern: vwscanf
+
+   - patterns:
+     - pattern-either:
+       - pattern: |
+          $TYPE * $BUF;
+          ...
+          $FUN($ARG, $BUF, ...);
+       - pattern: |
+          $TYPE $BUF[$SIZE];
+          ...
+          $FUN($ARG, $BUF, ...);
+     - pattern-not: $FUN($ARG, "...", ...)
+     - pattern-not: |
+        $TYPE * $BUF = "...";
+        ...
+        $FUN($ARG, $BUF, ...);
+     - pattern-not: |
+        $TYPE * $BUF;
+        ...
+        $BUF = "...";
+        ...
+        $FUN($ARG, $BUF, ...);
+     - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: fprintf
+           - pattern: vfprintf
+           - pattern: sprintf
+           - pattern: vsprintf
+           - pattern: vfscanf
+           - pattern: sscanf
+           - pattern: vsscanf
+           - pattern: swscanf
+           - pattern: syslog
+           - pattern: vsyslog
+
+   - patterns:
+     - pattern-either:
+       - pattern: |
+          $TYPE * $BUF;
+           ...
+           $FUN($ARG, $ARG1, $BUF, ...);
+       - pattern: |
+          $TYPE $BUF[$SIZE];
+          ...
+          $FUN($ARG, $ARG1, $BUF, ...);
+     - pattern-not: $FUN($ARG, $ARG1, "...", ...)
+     - pattern-not: |
+        $TYPE * $BUF = "...";
+        ...
+        $FUN($ARG, $ARG1, $BUF, ...);
+     - pattern-not: |
+        $TYPE * $BUF;
+        ...
+        $BUF = "...";
+        ...
+        $FUN($ARG, $ARG1, $BUF, ...);
+     - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: snprintf
+           - pattern: vsnprintf
+
+
+

@@ -1,0 +1,97 @@
+rules:
+# WARNING
+ - id: Unsafe-switch-code WARNING check 1
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: The codes of switch miss break or return or exit.
+   patterns:
+    - pattern-either:
+       - pattern: |
+          switch($CASE)
+          {
+          case $VALUE1:
+          ...
+          case $VALUE2:
+          ...
+          }
+    # break
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       ...
+       break;
+       ...
+       case $VALUE2:
+       ...
+       }
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       break;
+       case $VALUE2:
+       ...
+       }
+    # return
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       ...
+       return;
+       ...
+       case $VALUE2:
+       ...
+       }
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       return;
+       case $VALUE2:
+       ...
+       }
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       ...
+       return $V;
+       ...
+       case $VALUE2:
+       ...
+       }
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       return $V;
+       case $VALUE2:
+       ...
+       }
+    # exit
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       ...
+       exit($V);
+       ...
+       case $VALUE2:
+       ...
+       }
+    - pattern-not: |
+       switch($CASE)
+       {
+       case $VALUE1:
+       exit($V);
+       case $VALUE2:
+       ...
+       }
+

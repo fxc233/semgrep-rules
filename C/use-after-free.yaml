@@ -1,0 +1,70 @@
+rules:
+# WARNING
+ - id: Use-after-free WARNING check 1
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: Returning pointer related values after releasing the pointer may cause information disclosure.
+   patterns:
+    - pattern: |
+       free($PTR);
+       ...
+       return $PTR[$OFFSET];
+    - pattern-not: |
+       free($PTR);
+       ...
+       $PTR = $PTR1;
+       ...
+       return $PTR[$OFFSET];
+
+ - id: Use-after-free WARNING check 2
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: After releasing the pointer, call the output function to output data related to the pointer, which may cause information disclosure.
+   patterns:
+    - pattern: |
+       free($PTR);
+       ...
+       $FUN(..., $PTR, ...);
+    - pattern-not: |
+       free($PTR);
+       ...
+       $PTR = $PTR1;
+       ...
+       $FUN(..., $PTR, ...);
+    - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: puts
+           - pattern: fputs
+           - pattern: printf
+           - pattern: fprintf
+           - pattern: send
+           - pattern: sendto
+
+ - id: Use-after-free WARNING check 3
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: The global variable was not cleared after being released, and there may be a double free.
+   patterns:
+    - pattern-not-inside: |
+       $TYPE * $PTR;
+       ...
+       free($PTR);
+    - pattern: free($PTR);
+    
+

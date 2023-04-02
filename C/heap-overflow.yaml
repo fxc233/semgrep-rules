@@ -1,0 +1,112 @@
+rules:
+# INFO
+ - id: Heap-overflow INFO check 1
+   metadata:
+    author: FXC
+   severity: INFO
+   languages:
+    - c
+    - cpp
+   message: >-
+    INFO: There may be an off-by-null on the heap.
+   pattern-either:
+    - patterns:
+       - pattern: |
+          $PTR = $FUN($SIZE);
+          ...
+          strcpy($PTR, ...);
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: malloc
+           - pattern: calloc
+           - pattern: realloc
+# WARNING
+ - id: Heap-overflow WARNING check 1
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: Obviously, there is an off-by-one on the heap.
+   # ptr[size] = ..
+   # for(..;i<=len;...)
+   # while(i<=len)
+   pattern-either:
+    - patterns:
+       - pattern: |
+          $PTR = $FUN($SIZE);
+          ...
+          $PTR[$SIZE] = $BYTE;
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: malloc
+           - pattern: calloc
+           - pattern: realloc
+    - patterns:
+       - pattern: |
+          $PTR = $FUN($SIZE);
+          ...
+          for (<... $I = 0 ...>; <... $I <= $SIZE ...>; <... $I++ ...>)
+          $PTR[$I] = $BYTE;
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: malloc
+           - pattern: calloc
+           - pattern: realloc
+    - patterns:
+       - pattern: |
+          $PTR = $FUN($SIZE);
+          ...
+          for (<... $I = 0 ...>; <... $I <= $SIZE ...>; <... $I++ ...>){
+          ...
+          $PTR[$I] = $BYTE; ...}
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: malloc
+           - pattern: calloc
+           - pattern: realloc
+    - patterns:
+       - pattern: |
+          $PTR = $FUN($SIZE);
+          ...
+          for ($TYPE $I = 0; <... $I <= $SIZE ...>; <... $I++ ...>)
+          $PTR[$I] = $BYTE;
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: malloc
+           - pattern: calloc
+           - pattern: realloc
+    - patterns:
+       - pattern: |
+          $PTR = $FUN($SIZE);
+          ...
+          for ($TYPE $I = 0; <... $I <= $SIZE ...>; <... $I++ ...>){
+          ...
+          $PTR[$I] = $BYTE;...}
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: malloc
+           - pattern: calloc
+           - pattern: realloc
+    - patterns:
+       - pattern: |
+          $PTR = $FUN($SIZE);
+          ...
+          while (<... $I <= $SIZE ...>){
+          ...
+          $PTR[$I] = $BYTE;...}
+       - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: malloc
+           - pattern: calloc
+           - pattern: realloc
+

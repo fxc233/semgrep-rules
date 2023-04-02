@@ -1,0 +1,78 @@
+rules:
+# INFO
+ - id: Command-inject INFO check 1
+   metadata:
+    author: FXC
+   severity: INFO
+   languages:
+    - c
+    - cpp
+   message: >-
+    INFO: The parameter includes dangerous string, which may lead a backdoor or DOS.
+   patterns:
+    - pattern-either:
+       - pattern: system("...")
+       - pattern: popen("...", ...)
+       - pattern: execve("/bin/sh", "...", ...)
+    - pattern-regex: "(telnet|ssh|reboot)"
+
+# WARNING
+ - id: Command-inject WARNING check 1
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: The parameter is not a constant and may be controlled, which may be passed with some dangerous character.
+   patterns:
+    - pattern-either:
+       - pattern: system(...)
+       - pattern: popen(...)
+    - pattern-not: $FUN("...", ...)
+
+ - id: Command-inject WARNING check 2
+   metadata:
+    author: FXC
+   severity: WARNING
+   languages:
+    - c
+    - cpp
+   message: >-
+    WARNING: The first parameter is "/bin/sh" and the second parameter is not a constant and may be controlled, which may be passed with some dangerous character.
+   patterns:
+    - pattern-either:
+       - pattern: execve("/bin/sh", ...)
+    - pattern-not: $FUN("/bin/sh", "...", ...)
+
+ - id: Command-inject WARNING check 3
+   metadata:
+    author: FXC
+   severity: ERROR
+   languages:
+    - c
+    - cpp
+   message: >-
+    ERROR: The parameter can be controlled by user.
+   patterns:
+    - pattern-either:
+       - pattern: |
+          $FUN(..., $ARG, ...);
+          ...
+          system($ARG);
+       - pattern: |
+          $FUN(..., $ARG, ...);
+          ...
+          popen($ARG, ...);
+    - metavariable-pattern:
+          metavariable: $FUN
+          pattern-either:
+           - pattern: gets
+           - pattern: read
+           - pattern: fread
+           - pattern: recv
+           - pattern: recvfrom
+
+
+
